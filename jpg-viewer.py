@@ -13,6 +13,7 @@ class JpgViewer(Gtk.Application):
         super().__init__(application_id="local.gnome.JpgViewer")
         self.start_path = start_path
         self.window = None
+        self.file_dialog = None
         self.picture = Gtk.Picture()
         self.picture.set_can_shrink(True)
 
@@ -43,6 +44,10 @@ class JpgViewer(Gtk.Application):
         self.window.set_title(os.path.basename(path))
 
     def open_dialog(self, *_):
+        if self.file_dialog is not None:
+            self.file_dialog.show()
+            return
+
         dialog = Gtk.FileChooserNative(
             title="Open Image",
             transient_for=self.window,
@@ -56,12 +61,16 @@ class JpgViewer(Gtk.Application):
         images.add_mime_type("image/png")
         dialog.add_filter(images)
         dialog.connect("response", self.on_dialog_response)
+        self.file_dialog = dialog
         dialog.show()
 
     def on_dialog_response(self, dialog, response):
         if response == Gtk.ResponseType.ACCEPT:
-            self.open_file(dialog.get_file().get_path())
+            file = dialog.get_file()
+            if file is not None:
+                self.open_file(file.get_path())
         dialog.destroy()
+        self.file_dialog = None
 
     def alert(self, text):
         dialog = Gtk.AlertDialog(message=text)
