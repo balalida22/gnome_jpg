@@ -17,7 +17,7 @@ class JpgViewer(Gtk.Application):
         self.picture.set_can_shrink(True)
 
     def do_activate(self):
-        self.window = Gtk.ApplicationWindow(application=self, title="JPG Viewer")
+        self.window = Gtk.ApplicationWindow(application=self, title="Image Viewer")
         self.window.set_default_size(900, 650)
         self.window.set_child(self.picture)
 
@@ -34,8 +34,8 @@ class JpgViewer(Gtk.Application):
             self.open_dialog()
 
     def open_file(self, path):
-        if not path.lower().endswith((".jpg", ".jpeg")):
-            self.alert("Please choose a JPG file.")
+        if not path.lower().endswith((".jpg", ".jpeg", ".png")):
+            self.alert("Please choose a JPG or PNG file.")
             return
 
         file = Gio.File.new_for_path(os.path.abspath(path))
@@ -44,16 +44,17 @@ class JpgViewer(Gtk.Application):
 
     def open_dialog(self, *_):
         dialog = Gtk.FileChooserNative(
-            title="Open JPG",
+            title="Open Image",
             transient_for=self.window,
             action=Gtk.FileChooserAction.OPEN,
             accept_label="Open",
             cancel_label="Cancel",
         )
-        jpgs = Gtk.FileFilter()
-        jpgs.set_name("JPEG images")
-        jpgs.add_mime_type("image/jpeg")
-        dialog.add_filter(jpgs)
+        images = Gtk.FileFilter()
+        images.set_name("JPEG and PNG images")
+        images.add_mime_type("image/jpeg")
+        images.add_mime_type("image/png")
+        dialog.add_filter(images)
         dialog.connect("response", self.on_dialog_response)
         dialog.show()
 
